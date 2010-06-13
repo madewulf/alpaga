@@ -1,6 +1,6 @@
 Date : 28-08-2008
 Author : Martin De Wulf
-For licence info, just ask !
+
 
 Alpaga Code Documentation : 
 ---------------------------
