@@ -1,0 +1,14 @@
+ALPHABET : a, b
+STATES : 1, 2, 3
+INIT : 1
+SAFE : 1,2,3
+TARGET : 3
+TRANS : 
+1, 1 , a
+1,2, b
+2, 2, b
+2, 3, a
+3,3,a
+3,3,b
+OBS :
+1, 2 , 3

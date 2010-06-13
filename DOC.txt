@@ -1,0 +1,114 @@
+Date : 28-08-2008
+Author : Martin De Wulf
+For licence info, just ask !
+
+Alpaga Code Documentation : 
+---------------------------
+
+The code is made of four main classes:
+Game is the main class of Alpaga . It encompasses all
+  necessary information describing a game: BDDs for initial sets,
+  target sets, observations, transition relations and such, plus
+  dictionaries matching BDDs to state names and labels, to allow
+  pretty printing of those sets.  The class offers two implementations
+  of the controllable predecessors operator, one called
+  ``enumerative'' CPRE which simply closely follows the definition of
+  the CPRE operator (enumerating labels, states and sets of the
+  antichains, computing desired antichain intersections and unions as
+  it progresses) and one implementing the BDD technique explained in
+  the introduction paper
+
+  Furthermore, the class offers a large set of utilities function to
+  compute, for example, the successors of a set of states, its
+  controllable predecessors, and to manipulate antichains of sets of
+  states of the game. At a higher level, the class offers some methods
+  to compute strategies for some specific kind of objective
+  (ReachAndSafe, ReachOrSafe).Finally it includes the implementation
+  of the SOLVE algorithm  using all previous functions.
+
+ 
+Parser Which produces an instance of the class
+  Game from an input file. The parser also offers a good amount
+  of consistency checking (it checks for example that all states are
+  in one and only one observation).
+
+Strategy is the class encompassing strategies, it
+  essentially relies on a structure of dictionnary mapping sets of
+  states to a label and a rank. A stategy is played as follows : given
+  a current knowledge, the move output by the strategy is the move of
+  its cell of smaller rank.
+
+StrategyPlayer Is the class implementing the interactive
+  mode of Alpaga . It takes as argument a game and a strategy and
+  allows the user of Alpaga to replay the strategy interactively (see user manual).
+
+
+The difficult parts of the code are the following : 
+
+- Strategies : Strategies are manipulated in the Solve algorithm by
+  taking union of strategies, which simply takes the union of the two
+  cell dictionaries, but sometimes, you need a strategy that uses the
+  moves of strategies A where available and the move of strategies B
+  otherwise. To obtain such strategy, the trick is the following : I
+  simply increments the ranks of strategies B above maximum rank in
+  strategy A before computing the union.
+
+- Masks : When manipulating BDDs representing sets in logarithmic
+  encoding (that is, the number of variables is N, the log in base 2
+  of the number of elements in the set ), you often have to use masks,
+  especially when computing complements of sets. What is a mask : it
+  is a BDD that encodes the unused valuations in the 2^N valuations
+  your variables can encode. It is mainly used when you complement a
+  set. The operation is intersection(not(set),mask) and prevents the
+  apparition of unknown states in the result. The mask for states is
+  called locMask in the code.
+
+- Priorities : priorities are managed using two dictionaries in the
+  code: 
+
+  obsPrioDict that, given the BDD of an observation gives its priority
+  
+  prioBDDDict that, given a priority, gives the set of states having
+  that priority (it can be the union of multiple observations)
+
+- Observations are managed using a simple list of BDDs enumerating the
+  existing observations : obsBDDList
+
+
+- Multiple imbrications in fixpoint : the solve algorithm is
+  implemented as follows : The first step is the computation of a
+  fixpoint that is the set of winning sets for the parity
+  condition. In fact, what is really computed is a bit more
+  complicated than a simple parity condition. This is documented in
+  the file references/parityCondition.ps. 
+
+  To understand the code for this part of SOLVE, know that the
+  algorithms rely on two mutually recursive procedures 
+  computeParityGFPRec
+  and computeParityLFPRec
+
+  that work on a list of antichain (antichainList), where the element
+  at index i is the current antichain manipulated by the i^th
+  imbrication of the fixpoint formula. Those two functions call the
+  function
+
+  evaluateFPointInnerFormula when at the bottom of the imbrications,
+  to evaluate the fixpoint formula. 
+
+- Priority modifiers : the Solve algorithm rely on the idea of
+  iteratively "simplifying" the game treated by reducing the number of
+  priorities used in the game. To attain such an objective, I use the
+  parameter pModifier in my functions. It simply indicates by how much
+  each priority must be lowered (knowing that if priority-modifier <
+  0, the priority really used is 0)
+ 
+- addLinearEncoding : is a function called to initialize the data
+  structures used when computing the cpre that is not enumerative (see
+  the introduction paper to alaska for more insight about this). If
+  the enumerative cpre is used, this function has not to be called.
+
+
+Terminology consideration : 
+
+- sets of states are often named cells in the code
+- states are often called locations 

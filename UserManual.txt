@@ -1,0 +1,157 @@
+Contents :
+
+   1. Installation
+   2. Syntax
+   3. Tool options
+   4. Interactive Mode
+
+1. Installation
+---------------
+
+Currently, Alpaga has only been used on linux (mainly on Ubuntu Hardy
+Heron). Here are the instruction to install on a Linux station:
+
+   1. open a command line;
+   2. type python --version, it should output something like Python
+   2.5.2. If not, install python by typing something like sudo apt-get
+   install python, hoping you have the right to install on the machine
+   you are working on;
+   3. decompress the archive, for example by typing tar -xzvf
+   alpaga.tgz, it creates a repertory alpaga;
+   4. change directory to alpaga, by typing "cd alpaga";
+   5. to launch the tool on a first example, type : python
+   src/alpaga.py examples/parityGame1.gii
+   6. for easier use : type chmod +x src/alpaga.py ; cd /usr/bin ;
+   sudo ln -s /your/path/to/alpaga/alpaga.py this will make alpaga.py
+   available from any directory by typing alpaga.py
+
+If something fails, do not hesitate to contact one of us.  
+
+2. Syntax 
+--------- 
+
+The syntax of the tool is pretty straightforward if you are familiar
+with the concepts of parity games with imperfect information. Here is
+an example:
+
+ALPHABET : a, b 
+STATES : 1, 2, 3, 4
+INIT : 1
+SAFE : 1,2,3,4
+TARGET : 3
+TRANS : 
+1, 2 , a
+1,3, a
+1, 1, b
+2,4,a
+2,2,b
+3,4,b
+3,3,a
+4,1,a
+4,1,b
+OBS :
+1:1
+2:1
+3:1
+4:0
+
+The input file describing a parity game of imperfect information is
+constructed as follows:
+
+    * the sets of labels, states, initial states, safe states,and
+      target states are all specified on a single line introduced by
+      the corresponding keyword ALPABET, STATES, INIT, SAFE or
+      TARGET. The name of the states and labels can be any string
+      accepted by Python (except SINK, that is reserved, see below)
+      that does not include a blank space or the # character (which is
+      used for introducing comments).
+
+    * the transition relation is defined on a sequence of line
+      introduced by the keyword TRANS, also on a single line. After
+      the TRANS keyword, each line specifies on a single line a
+      transition, by giving the initial state, the destination state
+      and the label of the transition, all three comma-separated.
+
+    * Finally, the observations and corresponding priorities are
+      specified in a similar fashion. They are introduced by the
+      keyword OBS on a single line. Then follows the specification of
+      the observations. Each observation is specified on a single line
+      as a set of comma-separated states, followed by its priority (a
+      positive integer number) which must be precede by a ":".
+
+    * Blank lines are allowed anywhere as comments. The comments must
+      be introduced by the character # and end at the end of the line.
+
+You can find more examples in the subdirectory examples of the
+directory alpaga.  
+
+Notice that the objectives for which strategies are computed is not
+just a parity objectives but also includes safety and reachability conditions : 
+the objective is the following :
+
+reach(TARGET) union (parity(p) inter safe(SAFE)) 
+
+(see the file : references/CONCUR08.pdf for further informations)
+
+3. Tool options
+---------------
+
+The usage of the tool is as follows :
+
+alpaga.py [options] file
+
+The possible options are the following:
+
+    * -h Show an help message and exit
+
+    * -i After computing a strategy, launch the interactive strategy
+       player which allows to see how the strategy computed by the
+       tools performs on the game. In this mode, the tool can show you
+       which move is played by the strategy, given a current knowledge
+       (The knowledge of a player is the set of states where, at a
+       given point in time, he can be sure the game is in. Initially,
+       the knowledge is the set of initial states.), then you are
+       allowed to pick which will be the next observations amongst the
+       observations compatible with the current knowledge.
+
+    * -e Use the enumerative cpre in all computations. There are two
+       different implementations for the controllable predecessor
+       operator (a.k.a. cpre), one using a temporary linear encoding
+       of the resulting antichain for the time of the computation, and
+       an enumerative algorithm following closely the definition of
+       the cpre operator. More details can be found in the
+       introduction article to Alpaga.
+
+    * -n Turn off the totalization of the transition relation. By
+       default, Alpaga completes the transition relation so that it
+       becomes total, which means that a transition on every label
+       exists from every state. To do this, Alpaga first adds a state
+       named SINK with priority 1 (and its own observation), from
+       which every labels loops back to SINK, and then adds a
+       transition
+
+      s, SINK, lab
+
+      for each pair (s, lab) such that there does not exist a
+      transition from s on label lab. Be aware that, as a consequence
+      the SINK state name is reserved.
+
+    * -r Turn on the display of stack traces in case of error.
+
+    * -s Turn off the simplification of the strategies before display.
+
+    * -t Display computation times, which includes time for parsing
+       the file (including the construction of the initial BDDs), time
+       for initializing the linear encoding, time for computing a
+       strategy, and time for simplifying that strategy.
+
+    * -v Turns on the display warnings, which mainly shows which
+       transitions are added by the totalization procedure.
+
+4. Interactive mode
+-------------------
+
+In interactive mode, type help for the list of commands : the standard
+way for playing a strategy is the following : launch alpaga with
+option -i, type go at the interactive prompt, type the number of an
+observation, type enter twice, repeat.

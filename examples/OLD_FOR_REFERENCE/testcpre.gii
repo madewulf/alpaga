@@ -1,0 +1,30 @@
+ALPHABET : a, b
+STATES : 1, 2 , 3 , 4, 5, 6, 7, 8, 9, Bad
+INIT : 1
+FINAL : 9
+TRANS : 
+1, 5, b
+1,6, a
+2,8,b
+2,Bad,a
+3,6,b
+3,8,b
+3,Bad,a
+4,8,a
+4,7,b
+5,Bad,a
+5,Bad,b
+6,9,a
+6,Bad,b
+7,9,a
+7,Bad,b
+8,9,b
+8,Bad,a
+Bad,1,a
+Bad, 1, b
+9,1,a
+9,1,b
+OBS :
+1,2
+2,3,4
+5,6,7,8,9,Bad
